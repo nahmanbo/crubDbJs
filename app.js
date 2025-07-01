@@ -1,23 +1,8 @@
-import { readFile, writeFile } from "node:fs";
 import readline from "node:readline";
-
-function createReadline() {
-    return readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
-    });
-}
-
-function readDb(callback) {
-    readFile("./DB/db.txt", "utf8", (err, fileData) => {
-        const arr = JSON.parse(fileData);
-        callback(arr);
-    });
-}
-
-function writeDb(arr, callback) {
-    writeFile("./DB/db.txt", JSON.stringify(arr), callback);
-}
+import { handleCreate } from "./Modules/create.js";
+import { handleRead } from "./Modules/read.js";
+import { handleUpdate } from "./Modules/update.js";
+import { handleDelete } from "./Modules/delete.js";
 
 function showMenu() {
     console.log("\n=== Menu ===");
@@ -28,32 +13,11 @@ function showMenu() {
     console.log("5. Exit");
 }
 
-function handleCreate() {
-    const rl = createReadline();
-
-    rl.question("Enter JSON data: ", (json) => {
-        readDb((arr) => {
-            const newObj = JSON.parse(json);
-            arr.push(newObj);
-
-            writeDb(arr, () => {
-                console.log("Data added successfully");
-                rl.close();
-                startMenu();
-            });
-        });
-    });
-}
-
-function handleRead() {
-    readDb((arr) => {
-        console.log(arr);
-        startMenu();
-    });
-}
-
 function startMenu() {
-    const rl = createReadline();
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
 
     showMenu();
 
@@ -62,27 +26,20 @@ function startMenu() {
 
         switch (choice) {
             case "1":
-                handleCreate();
+                handleCreate(startMenu);
                 break;
-
             case "2":
-                handleRead();
+                handleRead(startMenu);
                 break;
-
             case "3":
-                console.log("You chose Update");
-                startMenu();
+                handleUpdate(startMenu);
                 break;
-
             case "4":
-                console.log("You chose Delete");
-                startMenu();
+                handleDelete(startMenu);
                 break;
-
             case "5":
                 console.log("Goodbye!");
                 break;
-
             default:
                 console.log("Invalid choice");
                 startMenu();
