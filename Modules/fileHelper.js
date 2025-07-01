@@ -1,12 +1,19 @@
 import { readFile, writeFile } from "node:fs";
 
-export function readDb(callback) {
-    readFile("./DB/db.txt", "utf8", (err, fileData) => {
-        const arr = JSON.parse(fileData);
-        callback(arr);
+export function readDb() {
+    return new Promise((resolve, reject) => {
+        readFile("./DB/db.txt", "utf8", (err, data) => {
+            if (err) reject(err);
+            else resolve(data);
+        });
     });
 }
 
-export function writeDb(arr, callback) {
-    writeFile("./DB/db.txt", JSON.stringify(arr), callback);
+export function writeDb(data) {
+    return new Promise((resolve, reject) => {
+        writeFile("./DB/db.txt", data, (err) => {
+            if (err) reject(err);
+            else resolve();
+        });
+    });
 }

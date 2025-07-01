@@ -7,15 +7,22 @@ export function handleCreate(startMenu) {
         output: process.stdout
     });
 
-    rl.question("Enter JSON data: ", (json) => {
-        readDb((arr) => {
-            const newObj = JSON.parse(json);
-            arr.push(newObj);
-            writeDb(arr, () => {
-                console.log("Data added successfully");
-                rl.close();
-                startMenu();
-            });
-        });
+    new Promise((resolve) => {
+        rl.question("Enter JSON data: ", resolve);
+    })
+    .then((json) => {
+        return readDb().then((fileData) => ({ json, fileData }));
+    })
+    .then(({ json, fileData }) => {
+        const arr = JSON.parse(fileData);
+        const newObj = JSON.parse(json);
+        arr.push(newObj);
+        return writeDb(JSON.stringify(arr));
+    })
+    .then(() => console.log("Data added successfully"))
+    .catch((err) => console.error("Error:", err.message))
+    .finally(() => {
+        rl.close();
+        startMenu();
     });
 }
